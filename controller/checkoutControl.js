@@ -65,7 +65,56 @@ const checkoutInternetBanking = async (req, res, next) => {
   next();
 };
 
+const omiseWebHooks = async (req, res, next) => {
+  try {
+    const { data, key } = req.body;
+
+    if (key === "charge.complete") {
+      if (data.status === "successful" || data.status === "failed") {
+        const charge = {
+          id: data.id,
+          status: data.status,
+          amount: data.funding_amount,
+        };
+
+        await writeFile(filePath, JSON.stringify(charge));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  next();
+};
+
+const readFileData = async () => {
+  try {
+    const chargeData = await readFile(filePath, "utf8");
+
+    if (!chargeData) {
+      return {};
+    }
+
+    return JSON.parse(chargeData);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getInternetBankingCharge = async (req, res, next) => {
+  try {
+    const charge = await readFileData();
+
+    res.send({ ...charge });
+    await writeFile(filePath, JSON.stringify({}));
+  } catch (err) {
+    console.log(err);
+  }
+  next();
+};
+
 module.exports = {
   checkoutCreditCard,
   checkoutInternetBanking,
+  omiseWebHooks,
+  getInternetBankingCharge,
 };
