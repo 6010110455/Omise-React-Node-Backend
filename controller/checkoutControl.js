@@ -30,6 +30,42 @@ const checkoutCreditCard = async (req, res, next) => {
   next();
 };
 
+const checkoutInternetBanking = async (req, res, next) => {
+  console.log("data =>", req.body);
+  const { email, name, amount, token } = req.body;
+  try {
+    // const customer = await omise.customers.create({
+    //   email,
+    //   description: name,
+    //   card: token,
+    // });
+
+    const charge = await omise.charges.create({
+      amount,
+      source: token,
+      currency: "thb",
+      return_uri: "http://localhost:3000/message",
+    });
+
+    // const charge = await omise.charges.create({
+    //   amount,
+    //   currency: "thb",
+    //   customer: customer.id,
+    // });
+
+    console.log("charge =>", charge);
+    res.send({
+      amount: charge.amount,
+      status: charge.status,
+      authorizeUri: charge.authorize_uri,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+  next();
+};
+
 module.exports = {
   checkoutCreditCard,
+  checkoutInternetBanking,
 };
