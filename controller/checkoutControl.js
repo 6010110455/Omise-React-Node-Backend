@@ -78,7 +78,6 @@ const checkoutInternetBanking = async (req, res, next) => {
 
 const omiseWebHooks = async (req, res, next) => {
   try {
-    console.log("req.body", req.body);
     const { data, key } = req.body;
 
     if (key === "charge.complete") {
