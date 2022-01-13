@@ -1,7 +1,18 @@
+const fs = require("fs");
+const path = require("path");
+const util = require("util");
+
 const omise = require("omise")({
   publicKey: process.env.OMISE_PUBLIC_KEY,
   secretKey: process.env.OMISE_SECRET_KEY,
 });
+
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+
+const rootDir = require("../helper/path");
+
+const filePath = path.join(rootDir, "data", "internetBankingCharge.json");
 
 const checkoutCreditCard = async (req, res, next) => {
   console.log("data =>", req.body);
@@ -67,6 +78,7 @@ const checkoutInternetBanking = async (req, res, next) => {
 
 const omiseWebHooks = async (req, res, next) => {
   try {
+    console.log("req.body", req.body);
     const { data, key } = req.body;
 
     if (key === "charge.complete") {
